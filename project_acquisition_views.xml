@@ -1,0 +1,140 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- LISTĂ ACHIZIȚII PROIECT -->
+    <record id="view_project_acquisition_list" model="ir.ui.view">
+        <field name="name">project.acquisition.list</field>
+        <field name="model">project.acquisition</field>
+        <field name="arch" type="xml">
+            <list string="Achiziții proiect">
+                <field name="sequence"/>
+                <field name="phase"/>
+                <field name="code"/>
+                <field name="name"/>
+                <field name="project_id"/>
+                <field name="date_start"/>
+                <field name="date_end"/>
+                <field name="state"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- FORMULAR ACHIZIȚIE PROIECT -->
+    <record id="view_project_acquisition_form" model="ir.ui.view">
+        <field name="name">project.acquisition.form</field>
+        <field name="model">project.acquisition</field>
+        <field name="arch" type="xml">
+            <form string="Achiziție proiect">
+                <sheet>
+                    <group>
+                        <field name="project_id"/>
+                    </group>
+                    <group>
+                        <field name="sequence"/>
+                        <field name="phase"/>
+                        <field name="code"/>
+                        <field name="name"/>
+                        <field name="state"/>
+                    </group>
+                    <group string="Planificare">
+                        <group string="Data început">
+                            <field name="start_source_type"/>
+                            <field name="start_project_ref"/>
+                            <!-- referință la ACTIVITATE -->
+                            <field name="start_activity_id"/>
+                            <field name="start_activity_ref_type"/>
+                            <field name="start_offset_days"/>
+                            <field name="date_start" readonly="1"/>
+                        </group>
+                        <group string="Data sfârșit">
+                            <field name="end_source_type"/>
+                            <field name="end_project_ref"/>
+                            <!-- referință la ACTIVITATE -->
+                            <field name="end_activity_id"/>
+                            <field name="end_activity_ref_type"/>
+                            <field name="end_offset_days"/>
+                            <field name="date_end" readonly="1"/>
+                        </group>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- LISTĂ ȘABLOANE ACHIZIȚII -->
+    <record id="view_project_acquisition_template_list" model="ir.ui.view">
+        <field name="name">project.acquisition.template.list</field>
+        <field name="model">project.acquisition.template</field>
+        <field name="arch" type="xml">
+            <list string="Șabloane achiziții proiect">
+                <field name="sequence"/>
+                <field name="phase"/>
+                <field name="code"/>
+                <field name="name"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- FORMULAR ȘABLON ACHIZIȚIE -->
+    <record id="view_project_acquisition_template_form" model="ir.ui.view">
+        <field name="name">project.acquisition.template.form</field>
+        <field name="model">project.acquisition.template</field>
+        <field name="arch" type="xml">
+            <form string="Șablon achiziție proiect">
+                <sheet>
+                    <group>
+                        <field name="sequence"/>
+                        <field name="phase"/>
+                        <field name="code"/>
+                        <field name="name"/>
+                    </group>
+                    <group string="Planificare (șablon)">
+                        <group string="Data început">
+                            <field name="start_source_type"/>
+                            <field name="start_project_ref"/>
+                            <!-- legat de ȘABLON ACTIVITATE -->
+                            <field name="start_template_id"/>
+                            <field name="start_template_ref_type"/>
+                            <field name="start_offset_days"/>
+                        </group>
+                        <group string="Data sfârșit">
+                            <field name="end_source_type"/>
+                            <field name="end_project_ref"/>
+                            <!-- legat de ȘABLON ACTIVITATE -->
+                            <field name="end_template_id"/>
+                            <field name="end_template_ref_type"/>
+                            <field name="end_offset_days"/>
+                        </group>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- ACȚIUNE FEREASTRĂ ACHIZIȚII (folosită și din butoane / meniuri) -->
+    <record id="action_project_acquisition" model="ir.actions.act_window">
+        <field name="name">Achiziții proiect</field>
+        <field name="res_model">project.acquisition</field>
+        <field name="view_mode">list,form</field>
+        <field name="context">{}</field>
+        <field name="domain">[]</field>
+    </record>
+
+    <!-- ACȚIUNE FEREASTRĂ ȘABLOANE ACHIZIȚII -->
+    <record id="action_project_acquisition_template" model="ir.actions.act_window">
+        <field name="name">Șabloane achiziții</field>
+        <field name="res_model">project.acquisition.template</field>
+        <field name="view_mode">list,form</field>
+        <field name="context">{}</field>
+        <field name="domain">[]</field>
+    </record>
+
+    <!-- MENIU: Șabloane achiziții sub Configurare Proiecte -->
+    <record id="menu_project_acquisition_template" model="ir.ui.menu">
+        <field name="name">Șabloane achiziții</field>
+        <field name="parent_id" ref="project_funding.menu_project_templates_root"/>
+        <field name="action" ref="action_project_acquisition_template"/>
+        <field name="sequence">20</field>
+    </record>
+
+</odoo>

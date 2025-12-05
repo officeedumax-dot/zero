@@ -1,0 +1,152 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- =========================================================
+         1. ACTIVITĂȚI PROIECT (project.activity)
+       ========================================================= -->
+
+    <!-- LIST VIEW: Activități proiect -->
+    <record id="view_project_activity_list" model="ir.ui.view">
+        <field name="name">project.activity.list</field>
+        <field name="model">project.activity</field>
+        <field name="arch" type="xml">
+            <list string="Activități proiect">
+                <field name="project_id"/>
+                <field name="sequence"/>
+                <field name="phase"/>
+                <field name="code"/>
+                <field name="name"/>
+                <field name="date_start"/>
+                <field name="date_end"/>
+                <field name="state"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- FORM VIEW: Activitate proiect -->
+    <record id="view_project_activity_form" model="ir.ui.view">
+        <field name="name">project.activity.form</field>
+        <field name="model">project.activity</field>
+        <field name="arch" type="xml">
+            <form string="Activitate proiect">
+                <sheet>
+                    <group>
+                        <field name="project_id" readonly="1"/>
+                    </group>
+                    <group>
+                        <field name="sequence"/>
+                        <field name="phase"/>
+                        <field name="code"/>
+                        <field name="name"/>
+                        <field name="state"/>
+                    </group>
+                    <group string="Planificare">
+                        <group string="Data început">
+                            <field name="start_source_type"/>
+                            <field name="start_project_ref"/>
+                            <field name="start_activity_id"/>
+                            <field name="start_activity_ref_type"/>
+                            <field name="start_offset_days"/>
+                            <field name="date_start" readonly="1"/>
+                        </group>
+                        <group string="Data sfârșit">
+                            <field name="end_source_type"/>
+                            <field name="end_project_ref"/>
+                            <field name="end_activity_id"/>
+                            <field name="end_activity_ref_type"/>
+                            <field name="end_offset_days"/>
+                            <field name="date_end" readonly="1"/>
+                        </group>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- ACTION: Setare activități pentru un proiect (folosit în tab-ul Activități) -->
+    <record id="action_project_activity" model="ir.actions.act_window">
+        <field name="name">Setare activități</field>
+        <field name="res_model">project.activity</field>
+        <field name="view_mode">list,form</field>
+        <!-- filtrăm doar activitățile proiectului curent -->
+        <field name="domain">[('project_id', 'in', active_ids)]</field>
+        <field name="context">{'default_project_id': active_id}</field>
+    </record>
+
+    <!-- (opțional) meniu direct pentru activități proiect
+    <menuitem id="menu_project_activity"
+              name="Activități proiect"
+              parent="menu_project_funding_root"
+              action="action_project_activity"
+              sequence="30"/>
+    -->
+
+    <!-- =========================================================
+         2. ȘABLOANE ACTIVITĂȚI (project.activity.template)
+       ========================================================= -->
+
+    <!-- LIST VIEW: Șabloane activități -->
+    <record id="view_project_activity_template_list" model="ir.ui.view">
+        <field name="name">project.activity.template.list</field>
+        <field name="model">project.activity.template</field>
+        <field name="arch" type="xml">
+            <list string="Șabloane activități">
+                <field name="sequence"/>
+                <field name="phase"/>
+                <field name="code"/>
+                <field name="name"/>
+                <field name="start_source_type"/>
+                <field name="end_source_type"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- FORM VIEW: Șablon activitate proiect (FĂRĂ buton „Generează set standard”) -->
+    <record id="view_project_activity_template_form" model="ir.ui.view">
+        <field name="name">project.activity.template.form</field>
+        <field name="model">project.activity.template</field>
+        <field name="arch" type="xml">
+            <form string="Șablon activitate proiect">
+                <sheet>
+                    <group>
+                        <field name="sequence"/>
+                        <field name="phase"/>
+                        <field name="code"/>
+                        <field name="name"/>
+                    </group>
+                    <group string="Planificare implicită">
+                        <group string="Data început">
+                            <field name="start_source_type"/>
+                            <field name="start_project_ref"/>
+                            <field name="start_template_id"/>
+                            <field name="start_activity_ref_type"/>
+                            <field name="start_offset_days"/>
+                        </group>
+                        <group string="Data sfârșit">
+                            <field name="end_source_type"/>
+                            <field name="end_project_ref"/>
+                            <field name="end_template_id"/>
+                            <field name="end_activity_ref_type"/>
+                            <field name="end_offset_days"/>
+                        </group>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- ACTION ȘABLOANE ACTIVITĂȚI -->
+    <record id="action_project_activity_template" model="ir.actions.act_window">
+        <field name="name">Șabloane activități</field>
+        <field name="res_model">project.activity.template</field>
+        <field name="view_mode">list,form</field>
+    </record>
+
+    <!-- MENIU ȘABLOANE ACTIVITĂȚI (sub meniul principal Proiecte finanțate) -->
+<record id="menu_project_activity_template" model="ir.ui.menu">
+    <field name="name">Șabloane activități</field>
+    <field name="parent_id" ref="project_funding.menu_project_templates_root"/>
+    <field name="action" ref="action_project_activity_template"/>
+    <field name="sequence">10</field>
+</record>
+</odoo>

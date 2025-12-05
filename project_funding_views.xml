@@ -1,0 +1,454 @@
+<?xml version="1.0" encoding="utf-8"?> 
+<odoo>
+
+    <!-- LISTA LINIILOR DE DEVIZ (PENTRU VIZUALIZARE PE CAPITOLE) -->
+    <record id="view_project_budget_tree" model="ir.ui.view">
+        <field name="name">project.budget.tree</field>
+        <field name="model">project.budget</field>
+        <field name="arch" type="xml">
+            <list string="Linii deviz">
+                <field name="project_id"/>
+                <field name="chapter"/>
+                <field name="subchapter"/>
+                <field name="nr_crt" readonly="1"/>
+                <field name="name"/>
+
+                <field name="chelt_elig_baza" sum="1"/>
+                <field name="chelt_elig_tva" sum="1"/>
+                <field name="total_eligibil" sum="1"/>
+
+                <field name="chelt_neelig_baza" sum="1"/>
+                <field name="chelt_neelig_tva" sum="1"/>
+                <field name="total_neeligibil" sum="1"/>
+
+                <field name="total_baza" sum="1"/>
+                <field name="total_tva" sum="1"/>
+                <field name="total" sum="1"/>
+
+                <field name="tip_cheltuiala"/>
+                <field name="mysmis"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- ACTIUNE: DEVIZ PE CAPITOLE (FARA SEARCH VIEW CUSTOM) -->
+    <record id="action_project_budget_by_chapter" model="ir.actions.act_window">
+        <field name="name">Deviz pe capitole</field>
+        <field name="res_model">project.budget</field>
+        <field name="view_mode">list</field>
+        <field name="view_id" ref="view_project_budget_tree"/>
+        <!-- Afiseaza DOAR liniile proiectului curent -->
+        <field name="domain">[('project_id', 'in', active_ids)]</field>
+        <!-- Deschide deja grupat pe Capitol -->
+        <field name="context">{'group_by': ['chapter']}</field>
+    </record>
+
+    <!-- LISTA PROIECTE -->
+    <record id="view_project_funding_list" model="ir.ui.view">
+        <field name="name">project.funding.list</field>
+        <field name="model">project.funding</field>
+        <field name="arch" type="xml">
+            <list string="Proiecte finantate"
+                  decoration-success="status_proiect == 'contractat'"
+                  decoration-info="status_proiect == 'monitorizare'"
+                  decoration-danger="status_proiect == 'inchis'">
+                <field name="beneficiar"/>
+                <field name="denumire"/>
+                <field name="cod"/>
+                <field name="data_depunere"/>
+                <field name="data_semnare"/>
+                <field name="data_finalizare"/>
+
+                <!-- câmpurile noi cerute în listă -->
+                <field name="data_monitorizare"/>
+                <field name="status_proiect"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- SEARCH VIEW PENTRU PROIECTE -->
+    <record id="view_project_funding_search" model="ir.ui.view">
+        <field name="name">project.funding.search</field>
+        <field name="model">project.funding</field>
+        <field name="arch" type="xml">
+            <search string="Căutare proiecte">
+                <field name="cod" string="Cod proiect"/>
+                <field name="beneficiar" string="Beneficiar"/>
+                <field name="denumire" string="Denumire proiect"/>
+            </search>
+        </field>
+    </record>
+
+    <!-- WIZARD: EXPORT DEVIZ -->
+    <record id="view_project_deviz_export_wizard" model="ir.ui.view">
+        <field name="name">project.deviz.export.wizard.form</field>
+        <field name="model">project.deviz.export.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Export deviz">
+                <group>
+                    <field name="project_id" readonly="1"/>
+                    <field name="file_name" readonly="1"/>
+                    <field name="file_data" filename="file_name" readonly="1"/>
+                </group>
+                <footer>
+                    <button string="Generează fișier"
+                            type="object"
+                            name="action_export"
+                            class="btn-primary"/>
+                    <button string="Închide"
+                            class="btn-secondary"
+                            special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <!-- WIZARD: IMPORT DEVIZ -->
+    <record id="view_project_deviz_import_wizard" model="ir.ui.view">
+        <field name="name">project.deviz.import.wizard.form</field>
+        <field name="model">project.deviz.import.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Import deviz">
+                <group>
+                    <field name="project_id" readonly="1"/>
+                    <field name="file_name"/>
+                    <field name="file_data" filename="file_name"/>
+                    <field name="confirm_override"/>
+                    <label for="confirm_override"
+                           string="Dacă proiectul are deja linii de deviz, acestea vor fi șterse înainte de import."/>
+                </group>
+                <footer>
+                    <button string="Importă" type="object" name="action_import" class="btn-primary"/>
+                    <button string="Anulează" class="btn-secondary" special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <!-- ACTION: EXPORT / IMPORT WIZARD -->
+    <record id="action_project_deviz_export_wizard" model="ir.actions.act_window">
+        <field name="name">Export deviz</field>
+        <field name="res_model">project.deviz.export.wizard</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+        <field name="context">{'active_id': active_id, 'active_model': 'project.funding'}</field>
+    </record>
+
+    <record id="action_project_deviz_import_wizard" model="ir.actions.act_window">
+        <field name="name">Import deviz</field>
+        <field name="res_model">project.deviz.import.wizard</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+        <field name="context">{'active_id': active_id, 'active_model': 'project.funding'}</field>
+    </record>
+
+    <!-- FORMULAR PROIECT -->
+    <record id="view_project_funding_form" model="ir.ui.view">
+        <field name="name">project.funding.form</field>
+        <field name="model">project.funding</field>
+        <field name="arch" type="xml">
+            <form string="Proiect finantat">
+                <sheet class="o_form_sheet_full">
+                    <notebook>
+
+          <!-- TAB: INFORMATII GENERALE -->
+                        <page string="Informații generale">
+                            <group string="Beneficiar">
+                                <field name="beneficiar"/>
+                                <field name="cui"/>
+                            </group>
+                            <group string="Detalii proiect">
+                                <field name="denumire"/>
+                                <field name="cod"/>
+                                <field name="data_depunere"/>
+                                <field name="data_semnare"/>
+                                <field name="data_finalizare"/>
+
+                                <separator string="Indicatori financiari și fizici" colspan="2"/>
+                                <field name="aport_valoare"/>
+                                <field name="stadiu_financiar"/>
+                                <field name="stadiu_fizic"/>
+
+                                <separator string="Monitorizare și status" colspan="2"/>
+                                <field name="data_monitorizare"/>
+                                <field name="status_proiect"/>
+                            </group>
+                        </page>
+
+         <!-- TAB: DEVIZ -->
+                        <page string="Deviz">
+                            <!-- Butoane deviz -->
+                            <div class="oe_button_box" name="deviz_buttons">
+                                <button name="%(action_project_deviz_export_wizard)d"
+                                        type="action"
+                                        string="Export deviz"
+                                        class="btn-secondary oe_stat_button"/>
+                                <button name="%(action_project_deviz_import_wizard)d"
+                                        type="action"
+                                        string="Import deviz"
+                                        class="btn-primary oe_stat_button"/>
+                                <button name="%(action_project_budget_by_chapter)d"
+                                        type="action"
+                                        string="Deschide deviz pe capitole"
+                                        class="btn-secondary oe_stat_button"/>
+                                <button name="action_distribute_aport"
+                                        type="object"
+                                        string="Repartizează aportul"
+                                        class="btn-secondary"/>
+                            </div>
+
+                            <!-- Totaluri pe proiect -->
+                            <group string="Totaluri deviz proiect">
+                                <field name="total_deviz_eligibil" readonly="1"/>
+                                <field name="total_deviz_neeligibil" readonly="1"/>
+                                <field name="total_deviz_general" readonly="1"/>
+                            </group>
+
+                            <!-- Linii de deviz -->
+                            <field name="budget_line_ids">
+                                <list editable="bottom" string="Linii deviz" limit="200">
+                                    <field name="chapter"/>
+                                    <field name="subchapter"/>
+                                    <field name="nr_crt" readonly="1"/>
+                                    <field name="name"/>
+
+                                    <field name="chelt_elig_baza" sum="1"/>
+                                    <field name="chelt_elig_tva" sum="1"/>
+                                    <field name="total_eligibil" sum="1" readonly="1"/>
+
+                                    <field name="chelt_neelig_baza" sum="1"/>
+                                    <field name="chelt_neelig_tva" sum="1"/>
+                                    <field name="total_neeligibil" sum="1" readonly="1"/>
+
+                                    <field name="total_baza" sum="1" readonly="1"/>
+                                    <field name="total_tva" sum="1" readonly="1"/>
+                                    <field name="total" sum="1" readonly="1"/>
+
+                                    <field name="tip_cheltuiala"/>
+                                    <field name="mysmis"/>
+                                    <field name="total_chelt_eligibile_neramb" sum="1"/>
+                                    <field name="total_chelt_eligibile_aport" sum="1"/>
+                                </list>
+                            </field>
+
+                            <group>
+                                <field name="deviz_note" colspan="4"
+                                       placeholder="Note suplimentare pentru deviz (opțional)"/>
+                            </group>
+                        </page>
+
+        <!-- TAB: ACTIVITĂȚI -->
+			<page string="Activități">
+			    <group>
+			        <!-- Deschide lista activităților proiectului -->
+			        <button name="%(action_project_activity)d"
+			                type="action"
+			                string="Setare activități"
+			                class="btn-secondary"/>
+			
+			        <!-- Generează activități pe baza șabloanelor -->
+			        <button name="action_generate_activities_from_templates"
+			                type="object"
+			                string="Generează activități din șablon"
+			                class="btn-primary"/>
+			    </group>
+			
+			    <group>
+			        <field name="activity_ids">
+			            <list editable="bottom" string="Activități proiect">
+			                <field name="sequence"/>
+			                <field name="phase"/>
+			                <field name="code"/>
+			                <field name="name"/>
+			                <field name="date_start" readonly="1"/>
+			                <field name="date_end" readonly="1"/>
+			                <field name="state"/>
+			            </list>
+			            <form string="Activitate proiect">
+			                <sheet>
+			                    <group>
+			                        <field name="sequence"/>
+			                        <field name="phase"/>
+			                        <field name="code"/>
+			                        <field name="name"/>
+			                        <field name="state"/>
+			                    </group>
+			                    <group string="Planificare">
+			                        <group string="Data început">
+			                            <field name="start_source_type"/>
+			                            <field name="start_project_ref"/>
+			                            <field name="start_activity_id"/>
+			                            <field name="start_activity_ref_type"/>
+			                            <field name="start_offset_days"/>
+			                            <field name="date_start" readonly="1"/>
+			                        </group>
+			                        <group string="Data sfârșit">
+			                            <field name="end_source_type"/>
+			                            <field name="end_project_ref"/>
+			                            <field name="end_activity_id"/>
+			                            <field name="end_activity_ref_type"/>
+			                            <field name="end_offset_days"/>
+			                            <field name="date_end" readonly="1"/>
+			                        </group>
+			                    </group>
+			                </sheet>
+			            </form>
+			        </field>
+			    </group>
+			
+			    <group>
+			        <field name="activitati_note"
+			               placeholder="Note / structură dorită pentru activități (plan, status etc.)"/>
+			    </group>
+			</page>
+
+<!-- TAB: ACHIZIȚII -->
+<page string="Achiziții">
+    <group>
+        <!-- Buton: deschide achizițiile proiectului curent -->
+        <button name="action_open_acquisitions"
+                type="object"
+                string="Setare achiziții"
+                class="btn-secondary"/>
+
+        <!-- Buton: generează achizițiile din șabloane -->
+        <button name="action_generate_acquisitions_from_templates"
+                type="object"
+                string="Generează achiziții din șablon"
+                class="btn-primary"/>
+    </group>
+
+    <group>
+        <!-- Linii de achiziții ale proiectului curent -->
+        <field name="acquisition_ids">
+            <list editable="bottom" string="Achiziții proiect">
+                <field name="sequence"/>
+                <field name="phase"/>
+                <field name="code"/>
+                <field name="name"/>
+                <field name="date_start" readonly="1"/>
+                <field name="date_end" readonly="1"/>
+                <field name="state"/>
+            </list>
+            <form string="Achiziție proiect">
+                <sheet>
+                    <group>
+                        <field name="project_id" readonly="1"/>
+                    </group>
+                    <group>
+                        <field name="sequence"/>
+                        <field name="phase"/>
+                        <field name="code"/>
+                        <field name="name"/>
+                        <field name="state"/>
+                    </group>
+                    <group string="Planificare">
+                        <group string="Data început">
+                            <field name="start_source_type"/>
+                            <field name="start_project_ref"/>
+                            <field name="start_activity_id"/>
+                            <field name="start_activity_ref_type"/>
+                            <field name="start_offset_days"/>
+                            <field name="date_start" readonly="1"/>
+                        </group>
+                        <group string="Data sfârșit">
+                            <field name="end_source_type"/>
+                            <field name="end_project_ref"/>
+                            <field name="end_activity_id"/>
+                            <field name="end_activity_ref_type"/>
+                            <field name="end_offset_days"/>
+                            <field name="date_end" readonly="1"/>
+                        </group>
+                    </group>
+                    <group string="Dependențe">
+                        <field name="dependency_ids" widget="many2many_tags"/>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </group>
+
+    <group>
+        <field name="achizitii_note"
+               placeholder="Note / structură dorită pentru achizițiile proiectului"/>
+    </group>
+</page>
+                        
+	<!-- TAB: GRAFIC RAMBURSARE -->
+                        <page string="Grafic rambursare">
+                            <group>
+                                <field name="rambursare_note"
+                                       placeholder="Note / structură dorită pentru graficul de rambursare"/>
+                            </group>
+                        </page>
+
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- ACTIUNE PENTRU LISTA DE PROIECTE -->
+    <record id="action_project_funding" model="ir.actions.act_window">
+        <field name="name">Proiecte finantate</field>
+        <field name="res_model">project.funding</field>
+        <field name="view_mode">list,form</field>
+        <field name="view_id" ref="view_project_funding_list"/>
+        <field name="search_view_id" ref="view_project_funding_search"/>
+    </record>
+
+    <!-- MENIU PRINCIPAL + ȘABLOANE ACTIVITĂȚI -->
+    <menuitem id="menu_project_funding_root"
+              name="Proiecte finantate"
+              sequence="10"/>
+
+    <menuitem id="menu_project_funding"
+              name="Proiecte"
+              parent="menu_project_funding_root"
+              action="action_project_funding"
+              sequence="10"/>
+
+    <!-- LISTA ȘABLOANE ACTIVITĂȚI -->
+    <record id="view_project_activity_template_list" model="ir.ui.view">
+        <field name="name">project.activity.template.list</field>
+        <field name="model">project.activity.template</field>
+        <field name="arch" type="xml">
+            <list string="Șabloane activități">
+                <field name="sequence"/>
+                <field name="phase"/>
+                <field name="code"/>
+                <field name="name"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_project_activity_template_form" model="ir.ui.view">
+        <field name="name">project.activity.template.form</field>
+        <field name="model">project.activity.template</field>
+        <field name="arch" type="xml">
+            <form string="Șablon activitate proiect">
+                <sheet>
+                    <group>
+                        <field name="sequence"/>
+                        <field name="phase"/>
+                        <field name="code"/>
+                        <field name="name"/>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_project_activity_template" model="ir.actions.act_window">
+        <field name="name">Șabloane activități</field>
+        <field name="res_model">project.activity.template</field>
+        <field name="view_mode">list,form</field>
+    </record>
+
+<!-- Meniu root pentru șabloane -->
+<menuitem id="menu_project_templates_root"
+          name="Șabloane"
+          parent="menu_project_funding_root"
+          sequence="20"/>
+
+</odoo>
